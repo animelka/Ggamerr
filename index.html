@@ -1,96 +1,221 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>RobloxScam Tester</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 400px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    button {
-      background: #4facfe;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #00c6ff;
-    }
-    .result {
-      margin-top: 15px;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .safe {
-      color: green;
-    }
-    .scam {
-      color: red;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>P.U.S.H</title>
+<style>
+:root {
+  --bg: #0b1220;
+  --accent: #38bdf8;
+  --danger: #fb7185;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body { background: var(--bg); color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+#gameContainer { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+canvas { background:#04121b; border-radius:12px; width:100%; height:100%; touch-action:none; }
+.menu { position:absolute; top:0; width:100%; display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:20px; }
+.menu h1 { font-size:48px; letter-spacing:4px; color: var(--accent); text-shadow:0 0 12px var(--accent); }
+.menu button { width:60%; padding:14px; font-size:20px; border:none; border-radius:12px; cursor:pointer; background: linear-gradient(180deg,#0f172a,#0b1220); color:#fff; transition:0.2s; }
+.menu button:hover { background: linear-gradient(180deg,#38bdf8,#0f172a); }
+.scoreboard { position:absolute; top:10px; display:flex; justify-content:space-between; width:90%; font-size:16px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>RobloxScam Tester</h1>
-    <input type="text" id="url" placeholder="Вставь Roblox ссылку...">
-    <button onclick="checkURL()">Проверить</button>
-    <div id="result" class="result"></div>
+<div id="gameContainer">
+  <div class="menu" id="mainMenu">
+    <h1>P.U.S.H</h1>
+    <button id="startBtn">START</button>
+    <button id="instructionsBtn">HOW TO PLAY</button>
+    <div>High Score: <span id="highScore">0</span></div>
   </div>
 
-  <script>
-    function checkURL() {
-      const url = document.getElementById("url").value.trim();
-      const result = document.getElementById("result");
+  <div class="scoreboard" id="scoreboard" style="display:none;">
+    <div>Score: <span id="score">0</span></div>
+    <div>Time: <span id="timer">0.00</span>s</div>
+  </div>
 
-      // настоящие домены Roblox
-      const safeDomains = ["roblox.com", "www.roblox.com"];
+  <canvas id="game"></canvas>
+</div>
 
-      try {
-        const parsed = new URL(url);
-        const hostname = parsed.hostname.toLowerCase();
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W,H;
+function resize(){
+  W = window.innerWidth*window.devicePixelRatio;
+  H = window.innerHeight*window.devicePixelRatio;
+  canvas.width = W;
+  canvas.height = H;
+}
+window.addEventListener('resize', resize);
+resize();
 
-        if (safeDomains.includes(hostname)) {
-          result.textContent = "✅ Это официальная Roblox ссылка.";
-          result.className = "result safe";
-        } else {
-          result.textContent = "❌ Подозрительная ссылка! Возможный скам.";
-          result.className = "result scam";
-        }
-      } catch (e) {
-        result.textContent = "⚠️ Неверная ссылка.";
-        result.className = "result scam";
-      }
+/* MENU */
+const mainMenu = document.getElementById('mainMenu');
+const startBtn = document.getElementById('startBtn');
+const instructionsBtn = document.getElementById('instructionsBtn');
+const scoreboard = document.getElementById('scoreboard');
+const highScoreDisplay = document.getElementById('highScore');
+
+let highScore = parseInt(localStorage.getItem('pushHighScore')) || 0;
+highScoreDisplay.textContent = highScore;
+
+startBtn.onclick = ()=>{ startGame(); };
+instructionsBtn.onclick = ()=>{ alert("Move the ball with the paddle. Hit walls with the paddle to bounce. If the ball touches a wall without the paddle — Game Over!"); };
+
+/* GAME STATE */
+let running=false;
+let ball = {x:0, y:0, r:16, vx:2, vy:2};
+let paddle = {length:100, angle:0, width:14};
+let mouse = {x:0,y:0};
+let score=0;
+let speedMultiplier=1;
+let timer=0;
+let lastTime=0;
+
+// флаги для одного отскока за контакт
+let canBounce = {left:true, right:true, top:true, bottom:true};
+
+/* INIT */
+function resetGame(){
+  score=0; timer=0;
+  speedMultiplier=1;
+  ball.x=W/2; ball.y=H/2; ball.vx=2; ball.vy=2;
+  paddle.angle = 0;
+  lastTime=performance.now();
+  canBounce = {left:true, right:true, top:true, bottom:true};
+  scoreboard.style.display='flex';
+  document.getElementById('score').textContent=score;
+  document.getElementById('timer').textContent=timer.toFixed(2);
+  running=true;
+}
+
+function startGame(){
+  mainMenu.style.display='none';
+  resetGame();
+}
+
+/* INPUT */
+canvas.addEventListener('pointermove', e=>{
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = (e.clientX - rect.left)/rect.width*W;
+  mouse.y = (e.clientY - rect.top)/rect.height*H;
+});
+
+/* GAME LOOP */
+function update(dt){
+  if(!running) return;
+
+  // движение шарика с ускорением
+  ball.x += ball.vx*speedMultiplier*dt/16.67;
+  ball.y += ball.vy*speedMultiplier*dt/16.67;
+
+  // угол палки
+  paddle.angle = Math.atan2(mouse.y - ball.y, mouse.x - ball.x);
+
+  // координаты кончика палки
+  const tip = {
+    x: ball.x + Math.cos(paddle.angle)*paddle.length,
+    y: ball.y + Math.sin(paddle.angle)*paddle.length
+  };
+
+  // LEFT WALL
+  if(tip.x - ball.r <=0){
+    if(canBounce.left){
+      ball.vx = Math.abs(ball.vx);
+      canBounce.left=false;
+      speedMultiplier = Math.min(speedMultiplier+0.05,3);
+      score++;
     }
-  </script>
+  } else canBounce.left=true;
+
+  // RIGHT WALL
+  if(tip.x + ball.r >=W){
+    if(canBounce.right){
+      ball.vx = -Math.abs(ball.vx);
+      canBounce.right=false;
+      speedMultiplier = Math.min(speedMultiplier+0.05,3);
+      score++;
+    }
+  } else canBounce.right=true;
+
+  // TOP WALL
+  if(tip.y - ball.r <=0){
+    if(canBounce.top){
+      ball.vy = Math.abs(ball.vy);
+      canBounce.top=false;
+      speedMultiplier = Math.min(speedMultiplier+0.05,3);
+      score++;
+    }
+  } else canBounce.top=true;
+
+  // BOTTOM WALL
+  if(tip.y + ball.r >=H){
+    if(canBounce.bottom){
+      ball.vy = -Math.abs(ball.vy);
+      canBounce.bottom=false;
+      speedMultiplier = Math.min(speedMultiplier+0.05,3);
+      score++;
+    }
+  } else canBounce.bottom=true;
+
+  // Game Over если шарик коснулся стены без палки
+  if(ball.x - ball.r <=0 || ball.x + ball.r >=W || ball.y - ball.r <=0 || ball.y + ball.r >=H){
+    gameOver();
+  }
+
+  timer += dt/1000;
+  document.getElementById('score').textContent=score;
+  document.getElementById('timer').textContent=timer.toFixed(2);
+}
+
+function gameOver(){
+  running=false;
+  mainMenu.style.display='flex';
+  if(score > highScore){
+    highScore = score;
+    localStorage.setItem('pushHighScore', highScore);
+    highScoreDisplay.textContent = highScore;
+  }
+  alert('Game Over!\nScore: '+score+'\nTime: '+timer.toFixed(2)+'s');
+}
+
+/* DRAW */
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // стены
+  ctx.strokeStyle='#38bdf8';
+  ctx.lineWidth=4*window.devicePixelRatio;
+  ctx.strokeRect(2,2,W-4,H-4);
+
+  // шарик с градиентом
+  let gradient = ctx.createRadialGradient(ball.x, ball.y, ball.r*0.3, ball.x, ball.y, ball.r);
+  gradient.addColorStop(0,'#ff8c94');
+  gradient.addColorStop(1,'#fb7185');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r,0,Math.PI*2);
+  ctx.fill();
+
+  // палка
+  ctx.strokeStyle='#38bdf8';
+  ctx.lineWidth=paddle.width*window.devicePixelRatio;
+  ctx.beginPath();
+  ctx.moveTo(ball.x, ball.y);
+  ctx.lineTo(ball.x + Math.cos(paddle.angle)*paddle.length, ball.y + Math.sin(paddle.angle)*paddle.length);
+  ctx.stroke();
+}
+
+function loop(now){
+  const dt = now - lastTime;
+  lastTime=now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
 </body>
 </html>
