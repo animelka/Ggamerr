@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wordle Mobile Vertical</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 /* ===== Общий стиль ===== */
 body {
@@ -69,7 +69,7 @@ button:hover { background: #ffe680; transform: scale(1.05); }
 }
 
 .cell {
-    width: 14vw;  /* адаптивная ширина под экран телефона */
+    width: 14vw;  
     max-width: 60px;
     height: 14vw;
     max-height: 60px;
@@ -206,126 +206,12 @@ function enterWord(){
     if(guess===secretWord) alert(currentLang==="ru"?"ПОБЕДА!":"WIN!");
     row++;
     input.value="";
-    if(row===MAX_ROWS) alert((currentLang==="ru"?"Было слово: ":"Word was: ")+secretWord);
+    if(row===MAX_ROWS && guess!==secretWord) alert((currentLang==="ru"?"Было слово: ":"Word was: ")+secretWord);
 }
 </script>
 
 </body>
-</html>    border-radius: 12px;
-    border: 2px solid #fff;
-    transition: .2s;
-}
-.flag:hover { transform: scale(1.1); border-color: #333; }
-
-/* ===== Кнопки ===== */
-button {
-    padding: 12px 25px;
-    margin: 12px;
-    font-size: 18px;
-    border-radius: 10px;
-    border: 2px solid #333;
-    background: #fff5d7;
-    color: #333;
-    cursor: pointer;
-    transition: .2s;
-}
-button:hover { background: #ffe680; transform: scale(1.05); }
-
-/* ===== Игровое поле ===== */
-#board {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.row {
-    display: flex;
-    justify-content: center;
-    margin: 2px 0;
-}
-
-.cell {
-    width: 14vw;  /* адаптивная ширина под экран телефона */
-    max-width: 60px;
-    height: 14vw;
-    max-height: 60px;
-    margin: 2px;
-    border-radius: 8px;
-    font-size: 4vw;
-    line-height: 14vw;
-    background: #fff9e6;
-    border: 2px solid #ccc;
-    text-transform: uppercase;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: 0.3s;
-}
-
-.correct { background: #6aaa64; border-color: #6aaa64; color: #fff; }
-.semi { background: #c9b458; border-color: #c9b458; color: #fff; }
-.wrong { background: #d3d6da; border-color: #d3d6da; color: #333; }
-
-/* ===== Input ===== */
-#input {
-    font-size: 5vw;
-    padding: 8px;
-    text-align: center;
-    border-radius: 8px;
-    border: 2px solid #333;
-    width: 60vw;
-    max-width: 200px;
-    margin-top: 15px;
-}
-</style>
-</head>
-<body>
-
-<!-- ===== Выбор языка ===== -->
-<div id="langSelect" class="screen active">
-<h1>Выберите язык / Choose Language</h1>
-<img src="https://flagcdn.com/w320/gb.png" class="flag" onclick="setLanguage('en')">
-<img src="https://flagcdn.com/w320/ru.png" class="flag" onclick="setLanguage('ru')">
-</div>
-
-<!-- ===== Главное меню ===== -->
-<div id="menu" class="screen">
-<h1 id="menuTitle">Wordle</h1>
-<button id="playBtn" onclick="openGame()">Играть</button>
-<button id="settingsBtn" onclick="openSettings()">Настройки</button>
-</div>
-
-<!-- ===== Настройки ===== -->
-<div id="settings" class="screen">
-<h1 id="settingsTitle">Настройки</h1>
-<button id="changeLang" onclick="openLangBack()">Сменить язык</button>
-<br><br>
-<button onclick="backToMenu()">⬅ Вернуться</button>
-</div>
-
-<!-- ===== Игра ===== -->
-<div id="game" class="screen">
-<h1 id="gameTitle">Wordle</h1>
-<div id="board"></div>
-<input id="input" maxlength="5">
-<button onclick="enterWord()">OK</button>
-<br><br>
-<button onclick="backToMenu()">⬅ Меню</button>
-</div>
-
-<script>
-// ===== Словари =====
-const wordsRU = ["снег","луна","кот","дом","река","мир","птица","книга","берег","камин","тень","космос","лампа","вода","мост","волна","трава","город","звезда","мечта","песок","лист","дверь","карта","камень","кошка","мышка"];
-const wordsEN = ["apple","water","train","grape","mouse","plant","storm","tiger","bread","light","floor","house","table","chair","river","stone","green","black","cloud","smile","dream","night","movie","beach","space","earth","robot","laser","power","flame","sound","flash","ocean","horse","angle","drive","phone","music","timer"];
-
-let currentLang=null,currentList=null,secretWord="",row=0,WORD_LEN=5,MAX_ROWS=6;
-
-// ===== Язык =====
-function setLanguage(lang){
-    currentLang=lang;
-    currentList=lang==="ru"?wordsRU:wordsEN;
-    secretWord=currentList[Math.floor(Math.random()*currentList.length)];
+</html>ist[Math.floor(Math.random()*currentList.length)];
     WORD_LEN=secretWord.length;
     document.getElementById("langSelect").classList.remove("active");
     document.getElementById("menu").classList.add("active");
