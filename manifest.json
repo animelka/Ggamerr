@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Russian Wordle-Offline",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Ru wordle",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "id": "1",
+  "description": "A russian wordle"
+}
