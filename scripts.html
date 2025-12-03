@@ -2,9 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Wordle Mobile Vertical</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordle Mobile Vertical</title>
 <style>
+/* ===== Общий стиль ===== */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,15 +19,27 @@ body {
     align-items: center;
     padding: 20px 0;
 }
-h1 { font-size: 2em; margin-bottom: 20px; }
+
+h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+/* ===== Экраны ===== */
 .screen { display: none; width: 100%; }
 .active { display: block; }
+
+/* ===== Флаги ===== */
 .flag {
-    width: 100px; height: 60px; cursor: pointer; margin: 10px;
-    border-radius: 8px; border: 2px solid #fff; transition: .2s;
-    display: inline-block; position: relative; overflow: hidden;
+    width: 100px;
+    cursor: pointer;
+    margin: 10px;
+    border-radius: 12px;
+    border: 2px solid #fff;
+    transition: .2s;
 }
 .flag:hover { transform: scale(1.1); border-color: #333; }
+
 /* ===== Кнопки ===== */
 button {
     padding: 12px 25px;
@@ -40,22 +53,54 @@ button {
     transition: .2s;
 }
 button:hover { background: #ffe680; transform: scale(1.05); }
+
 /* ===== Игровое поле ===== */
-#board { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
-.row { display: flex; justify-content: center; margin: 2px 0; }
-.cell {
-    width: 14vw; max-width: 60px; height: 14vw; max-height: 60px; margin: 2px;
-    border-radius: 8px; font-size: 4vw; max-font-size: 28px;
-    line-height: 14vw; max-line-height: 60px; background: #fff9e6;
-    border: 2px solid #ccc; text-transform: uppercase;
-    display: flex; justify-content: center; align-items: center; transition: 0.3s;
+#board {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin: 2px 0;
+}
+
+.cell {
+    width: 14vw;  /* адаптивная ширина под экран телефона */
+    max-width: 60px;
+    height: 14vw;
+    max-height: 60px;
+    margin: 2px;
+    border-radius: 8px;
+    font-size: 4vw;
+    line-height: 14vw;
+    background: #fff9e6;
+    border: 2px solid #ccc;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+}
+
 .correct { background: #6aaa64; border-color: #6aaa64; color: #fff; }
 .semi { background: #c9b458; border-color: #c9b458; color: #fff; }
 .wrong { background: #d3d6da; border-color: #d3d6da; color: #333; }
+
 /* ===== Input ===== */
-#input { font-size: 5vw; max-font-size: 28px; padding: 8px; text-align: center;
-border-radius: 8px; border: 2px solid #333; width: 60vw; max-width: 200px; margin-top: 15px; }
+#input {
+    font-size: 5vw;
+    padding: 8px;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid #333;
+    width: 60vw;
+    max-width: 200px;
+    margin-top: 15px;
+}
 </style>
 </head>
 <body>
@@ -63,7 +108,8 @@ border-radius: 8px; border: 2px solid #333; width: 60vw; max-width: 200px; margi
 <!-- ===== Выбор языка ===== -->
 <div id="langSelect" class="screen active">
 <h1>Выберите язык / Choose Language</h1>
-<div id="flagsContainer"></div>
+<img src="https://flagcdn.com/w320/gb.png" class="flag" onclick="setLanguage('en')">
+<img src="https://flagcdn.com/w320/ru.png" class="flag" onclick="setLanguage('ru')">
 </div>
 
 <!-- ===== Главное меню ===== -->
@@ -97,76 +143,6 @@ const wordsRU = ["снег","луна","кот","дом","река","мир","п
 const wordsEN = ["apple","water","train","grape","mouse","plant","storm","tiger","bread","light","floor","house","table","chair","river","stone","green","black","cloud","smile","dream","night","movie","beach","space","earth","robot","laser","power","flame","sound","flash","ocean","horse","angle","drive","phone","music","timer"];
 
 let currentLang=null,currentList=null,secretWord="",row=0,WORD_LEN=5,MAX_ROWS=6;
-
-// ===== Динамические флаги =====
-const flagsContainer = document.getElementById("flagsContainer");
-
-// Флаг России
-function createRussiaFlag(lang){
-    const flag = document.createElement("div");
-    flag.className = "flag";
-    flag.onclick = () => setLanguage(lang);
-    ["#fff","#0000ff","#ff0000"].forEach(color => {
-        const stripe = document.createElement("div");
-        stripe.style.backgroundColor = color;
-        stripe.style.height = "33.33%";
-        stripe.style.width = "100%";
-        flag.appendChild(stripe);
-    });
-    flagsContainer.appendChild(flag);
-}
-
-// Флаг США с полосами и звёздами
-function createUSFlag(lang){
-    const flag = document.createElement("div");
-    flag.className = "flag";
-    flag.onclick = () => setLanguage(lang);
-    flag.style.position="relative";
-
-    // полосы
-    for(let i=0;i<13;i++){
-        const stripe = document.createElement("div");
-        stripe.style.backgroundColor = i%2===0?"#bf0a30":"#ffffff";
-        stripe.style.height = (100/13) + "%";
-        stripe.style.width = "100%";
-        stripe.style.position="absolute";
-        stripe.style.top = (i*(100/13)) + "%";
-        stripe.style.left = "0";
-        flag.appendChild(stripe);
-    }
-
-    // синий прямоугольник
-    const blue = document.createElement("div");
-    blue.style.position="absolute";
-    blue.style.top="0";
-    blue.style.left="0";
-    blue.style.width="40%";
-    blue.style.height="50%";
-    blue.style.backgroundColor="#3c3b6e";
-    flag.appendChild(blue);
-
-    // белые звёзды 5x6 (схематично)
-    const rows = 5;
-    const cols = 6;
-    for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
-            const star = document.createElement("div");
-            star.style.position="absolute";
-            star.style.width="5%";
-            star.style.height="5%";
-            star.style.backgroundColor="#fff";
-            star.style.borderRadius="50%";
-            star.style.top = (r*10 + 5) + "%";
-            star.style.left = (c*6 + 2) + "%";
-            blue.appendChild(star);
-        }
-    }
-
-    flagsContainer.appendChild(flag);
-}
-
-createRussiaFlag("ru");
-createUSFlag("en");
 
 // ===== Язык =====
 function setLanguage(lang){
@@ -215,50 +191,22 @@ function startBoard(){
     document.getElementById("input").maxLength=WORD_LEN;
 }
 
-// ===== Ввод слова с правильной подсветкой =====
+// ===== Ввод слова =====
 function enterWord(){
-    let input = document.getElementById("input");
-    let guess = input.value.toLowerCase();
-    if(guess.length !== WORD_LEN) return;
-
-    // считаем буквы в секретном слове
-    const secretLetters = {};
-    for(let ch of secretWord){
-        secretLetters[ch] = (secretLetters[ch] || 0) + 1;
-    }
-
-    // сначала correct
-    const cellClasses = Array(WORD_LEN).fill("");
+    let input=document.getElementById("input");
+    let guess=input.value.toLowerCase();
+    if(guess.length!==WORD_LEN) return;
     for(let i=0;i<WORD_LEN;i++){
-        if(guess[i] === secretWord[i]){
-            cellClasses[i] = "correct";
-            secretLetters[guess[i]]--;
-        }
+        let cell=document.getElementById(`r${row}c${i}`);
+        cell.textContent=guess[i];
+        if(guess[i]===secretWord[i]) cell.classList.add("correct");
+        else if(secretWord.includes(guess[i])) cell.classList.add("semi");
+        else cell.classList.add("wrong");
     }
-
-    // затем semi
-    for(let i=0;i<WORD_LEN;i++){
-        if(cellClasses[i] === ""){
-            if(secretLetters[guess[i]] > 0){
-                cellClasses[i] = "semi";
-                secretLetters[guess[i]]--;
-            } else {
-                cellClasses[i] = "wrong";
-            }
-        }
-    }
-
-    // применяем классы к ячейкам
-    for(let i=0;i<WORD_LEN;i++){
-        let cell = document.getElementById(`r${row}c${i}`);
-        cell.textContent = guess[i];
-        cell.className = "cell " + cellClasses[i];
-    }
-
-    if(guess === secretWord) alert(currentLang==="ru"?"ПОБЕДА!":"WIN!");
+    if(guess===secretWord) alert(currentLang==="ru"?"ПОБЕДА!":"WIN!");
     row++;
     input.value="";
-    if(row === MAX_ROWS) alert((currentLang==="ru"?"Было слово: ":"Word was: ") + secretWord);
+    if(row===MAX_ROWS) alert((currentLang==="ru"?"Было слово: ":"Word was: ")+secretWord);
 }
 </script>
 
