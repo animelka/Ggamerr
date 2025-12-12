@@ -1,4 +1,59 @@
-<!DOCTYPE html>
+
+        .card { 
+            background: #151525; border: 1px solid #333; 
+            width: 110px; /* Уменьшаем ширину карточек для вертикального макета */
+            padding: 8px; 
+            cursor: pointer; position: relative; transition: 0.2s; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 80px; /* Фиксированная минимальная высота */
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); background: #1e1e30; }
+        .card.disabled { opacity: 0.4; pointer-events: none; border-color: #222; }
+        
+        .card h3 { font-size: 11px; margin: 0 0 5px 0; color: #fff; text-align: center; }
+        .card .cost { font-size: 11px; color: var(--money); font-weight: bold; text-align: center; }
+        .card .desc { font-size: 8px; color: #aaa; margin-top: 4px; line-height: 1.2; text-align: center; }
+        .card .lvl { position: absolute; top: 5px; right: 5px; font-size: 9px; color: var(--primary); }
+
+        /* MEDIA QUERY: Adjust for larger screens (optional, but good practice) */
+        @media (min-width: 600px) {
+            .hud { gap: 40px; justify-content: flex-start; }
+            .stat span { font-size: 18px; }
+            .card { width: 130px; }
+        }
+
+        /* GAME OVER */
+        #game-over { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99; }
+        .btn-restart { background: var(--money); border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; color: #000; }
+        .btn-restart:hover { background: #fff; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="ui-layer">
+    <div class="hud">
+        <div class="stat">
+            <label>PLASMA (CASH)</label>
+            <span class="money-val" id="ui-money">0</span>
+        </div>
+        <div class="stat">
+            <label>INCOME/SEC</label>
+            <span style="color:#ffff00" id="ui-income">0</span>
+        </div>
+        <div class="stat">
+            <label>WAVE</label>
+            <span style="color:white" id="ui-wave">1</span>
+        </div>
+        <div class="stat">
+            <label>INTEGRITY</label>
+            <span style="color:var(--danger)" id="ui-hp">100%</span>
+        </d<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +68,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            /* width and height are handled by the JS resize function, but good to ensure full cover */
             width: 100%;
             height: 100%;
         }
@@ -35,6 +91,683 @@
         .hud { 
             background: rgba(0,0,0,0.8); 
             padding: 10px 20px; 
+            border-bottom: 2px solid var(--primary); 
+            display: flex; 
+            gap: 15px; /* Уменьшаем gap для мобильных устройств */
+            justify-content: space-around; /* Распределяем по ширине */
+            pointer-events: auto;
+        }
+        .stat { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; /* Центрируем текст в статах */
+        }
+        .stat label { font-size: 10px; color: #888; letter-spacing: 1px; }
+        .stat span { font-size: 16px; font-weight: bold; } /* Уменьшаем размер шрифта */
+        .money-val { color: var(--money); }
+        
+        /* SHOP AREA */
+        .shop-wrapper { 
+            background: rgba(0,0,0,0.9); 
+            border-top: 2px solid var(--money); 
+            padding: 10px; 
+            pointer-events: auto; 
+            max-height: 25vh; /* Ограничиваем высоту шопа (25% от высоты экрана) */
+            overflow-y: auto; 
+        }
+        .shop-title { font-size: 12px; color: #aaa; margin-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .shop-grid { 
+            display: flex; 
+            gap: 8px; /* Уменьшаем gap */
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+        
+        /* UPGRADE CARDS */
+        .card { 
+            background: #151525; border: 1px solid #333; 
+            width: 110px; /* Уменьшаем ширину карточек для вертикального макета */
+            padding: 8px; 
+            cursor: pointer; position: relative; transition: 0.2s; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 80px; /* Фиксированная минимальная высота */
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); background: #1e1e30; }
+        .card.disabled { opacity: 0.4; pointer-events: none; border-color: #222; }
+        
+        .card h3 { font-size: 11px; margin: 0 0 5px 0; color: #fff; text-align: center; }
+        .card .cost { font-size: 11px; color: var(--money); font-weight: bold; text-align: center; }
+        .card .desc { font-size: 8px; color: #aaa; margin-top: 4px; line-height: 1.2; text-align: center; }
+        .card .lvl { position: absolute; top: 5px; right: 5px; font-size: 9px; color: var(--primary); }
+
+        /* MEDIA QUERY: Adjust for larger screens (optional, but good practice) */
+        @media (min-width: 600px) {
+            .hud { gap: 40px; justify-content: flex-start; }
+            .stat span { font-size: 18px; }
+            .card { width: 130px; }
+        }
+
+        /* GAME OVER */
+        #game-over { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99; }
+        .btn-restart { background: var(--money); border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; color: #000; }
+        .btn-restart:hover { background: #fff; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="ui-layer">
+    <div class="hud">
+        <div class="stat">
+            <label>PLASMA (CASH)</label>
+            <span class="money-val" id="ui-money">0</span>
+        </div>
+        <div class="stat">
+            <label>INCOME/SEC</label>
+            <span style="color:#ffff00" id="ui-income">0</span>
+        </div>
+        <div class="stat">
+            <label>WAVE</label>
+            <span style="color:white" id="ui-wave">1</span>
+        </div>
+        <div class="stat">
+            <label>INTEGRITY</label>
+            <span style="color:var(--danger)" id="ui-hp">100%</span>
+        </div>
+    </div>
+
+    <div class="shop-wrapper">
+        <div class="shop-title">Starbase Upgrades</div>
+        <div class="shop-grid" id="shop-grid"></div>
+    </div>
+</div>
+
+<div id="game-over">
+    <h1 style="color: var(--danger); font-size: 40px;">CRITICAL FAILURE</h1>
+    <p>Waves Survived: <span id="final-wave" style="color:var(--primary)">0</span></p>
+    <button class="btn-restart" onclick="location.reload()">INITIATE REBOOT</button>
+</div>
+
+<script>
+/* ================= GAME ENGINE & LOGIC ================= */
+// ... (Остальной JavaScript код без изменений) ...
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- Configuration ---
+const STATE = {
+    money: 60,
+    health: 100,
+    maxHealth: 100,
+    wave: 1,
+    active: true,
+    lastTime: 0,
+    secTimer: 0,
+    frame: 0
+};
+
+// --- Player Stats & Upgrades ---
+const PLAYER = {
+    x: 0, y: 0,
+    clickDmg: 10,
+    critChance: 0.0,    // 0% to start
+    critMult: 2.0,
+    autoClickSpeed: 0,  // Clicks per second (0 = off)
+    autoClickTimer: 0,
+    interestRate: 0.0,  // 0%
+    stasisRange: 0,     // 0 = off
+    missileUnlock: false,
+    missileDmg: 20,
+    missileCooldown: 120, // Frames
+    missileTimer: 0
+};
+
+// --- Upgrade Database ---
+const UPGRADES = [
+    {
+        id: 'click', name: 'Laser Amp', base: 25, mult: 1.5, lvl: 1, type: 'active',
+        desc: '+5 Click Damage',
+        act: (u) => { PLAYER.clickDmg += 5; }
+    },
+    {
+        id: 'crit', name: 'Crit Lens', base: 150, mult: 1.6, lvl: 0, type: 'active',
+        desc: '+10% Crit Chance',
+        act: (u) => { PLAYER.critChance += 0.10; }
+    },
+    {
+        id: 'turret', name: 'Auto-Turret', base: 100, mult: 1.4, lvl: 0, type: 'defense',
+        desc: 'Spawns a basic turret',
+        act: (u) => { entities.turrets.push(new Turret(entities.turrets.length)); }
+    },
+    {
+        id: 'missile', name: 'Homing Missile', base: 300, mult: 1.5, lvl: 0, type: 'defense',
+        desc: 'Unlocks AoE Rockets',
+        act: (u) => { 
+            if(!PLAYER.missileUnlock) PLAYER.missileUnlock = true;
+            else { PLAYER.missileDmg += 15; PLAYER.missileCooldown = Math.max(30, PLAYER.missileCooldown - 10); }
+        }
+    },
+    {
+        id: 'stasis', name: 'Stasis Field', base: 200, mult: 1.8, lvl: 0, type: 'defense',
+        desc: 'Slows nearby enemies',
+        act: (u) => { PLAYER.stasisRange += 40; }
+    },
+    {
+        id: 'autoclick', name: 'AI Gunner', base: 500, mult: 2.0, lvl: 0, type: 'active',
+        desc: 'Auto-clicks 2x/sec',
+        act: (u) => { PLAYER.autoClickSpeed += 2; }
+    },
+    {
+        id: 'bank', name: 'Plasma Bank', base: 100, mult: 1.5, lvl: 0, type: 'eco',
+        desc: '+1% Interest/sec on cash',
+        act: (u) => { PLAYER.interestRate += 0.01; }
+    },
+    {
+        id: 'repair', name: 'Hull Repair', base: 50, mult: 1.1, lvl: 0, type: 'heal',
+        desc: 'Recover 30 HP',
+        act: (u) => { STATE.health = Math.min(STATE.health + 30, STATE.maxHealth); }
+    }
+];
+
+// --- Entity Lists ---
+const entities = {
+    enemies: [],
+    particles: [],
+    projectiles: [],
+    turrets: [],
+    texts: []
+};
+
+// --- Initial Setup ---
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    PLAYER.x = canvas.width / 2;
+    PLAYER.y = canvas.height / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// --- Input ---
+canvas.addEventListener('mousedown', (e) => {
+    if(!STATE.active) return;
+    firePlayerShot(e.clientX, e.clientY);
+});
+
+function firePlayerShot(tx, ty) {
+    // Check hit
+    let hit = false;
+    // Check enemies (reverse order for z-index)
+    for(let i=entities.enemies.length-1; i>=0; i--){
+        const en = entities.enemies[i];
+        const d = Math.hypot(en.x - tx, en.y - ty);
+        if(d < en.radius + 15) { // generous hitbox
+            // Calc Damage
+            let dmg = PLAYER.clickDmg;
+            let isCrit = Math.random() < PLAYER.critChance;
+            if(isCrit) dmg *= PLAYER.critMult;
+
+            damageEnemy(en, dmg, isCrit);
+            spawnParticle(tx, ty, 5, '#00d2ff');
+            hit = true;
+            break; // only hit one
+        }
+    }
+    if(!hit) spawnParticle(tx, ty, 2, '#fff'); // Miss puff
+}
+
+// --- Classes ---
+
+class Enemy {
+    constructor() {
+        // Spawn Types
+        const rand = Math.random();
+        this.type = 'normal';
+        this.color = '#ff0055'; // Red
+        this.speedMult = 1;
+        this.hpMult = 1;
+        this.radius = 15;
+
+        if (STATE.wave > 3 && rand > 0.8) {
+            this.type = 'tank';
+            this.color = '#bf00ff'; // Purple
+            this.speedMult = 0.5;
+            this.hpMult = 3.0;
+            this.radius = 22;
+        } else if (STATE.wave > 2 && rand > 0.6 && rand <= 0.8) {
+            this.type = 'fast';
+            this.color = '#ffaa00'; // Orange/Yellow
+            this.speedMult = 1.6;
+            this.hpMult = 0.6;
+            this.radius = 12;
+        }
+
+        // Spawn Position (Edge of screen)
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.max(canvas.width, canvas.height) * 0.6;
+        this.x = PLAYER.x + Math.cos(angle) * dist;
+        this.y = PLAYER.y + Math.sin(angle) * dist;
+
+        // Stats
+        const baseHp = 10 + (STATE.wave * 4);
+        this.hp = baseHp * this.hpMult;
+        this.maxHp = this.hp;
+        this.speed = (0.4 + (STATE.wave * 0.05)) * this.speedMult;
+        this.value = Math.floor((4 + STATE.wave) * this.hpMult);
+        
+        this.slowed = false;
+    }
+
+    update() {
+        const dx = PLAYER.x - this.x;
+        const dy = PLAYER.y - this.y;
+        const dist = Math.hypot(dx, dy);
+
+        // Movement
+        let actualSpeed = this.speed;
+        
+        // Stasis Effect
+        this.slowed = false;
+        if(PLAYER.stasisRange > 0 && dist < PLAYER.stasisRange + 60) {
+            actualSpeed *= 0.4;
+            this.slowed = true;
+        }
+
+        if (dist < 40) {
+            takeDamage(10);
+            this.dead = true;
+        } else {
+            this.x += (dx/dist) * actualSpeed;
+            this.y += (dy/dist) * actualSpeed;
+        }
+    }
+
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = this.slowed ? '#fff' : this.color; // Flash white if slowed
+        ctx.fill();
+        if(this.slowed) {
+              ctx.fillStyle = 'rgba(0, 210, 255, 0.5)'; // Blue overlay
+              ctx.fill();
+        }
+        
+        // HP Bar
+        const pct = this.hp / this.maxHp;
+        ctx.fillStyle = '#444';
+        ctx.fillRect(this.x - 10, this.y - this.radius - 8, 20, 3);
+        ctx.fillStyle = pct > 0.5 ? '#0f0' : '#f00';
+        ctx.fillRect(this.x - 10, this.y - this.radius - 8, 20 * pct, 3);
+    }
+}
+
+class Turret {
+    constructor(idx) {
+        this.angle = (Math.PI * 2 / 6) * idx;
+        this.dist = 60;
+        this.range = 200;
+        this.cooldown = 0;
+        this.cdMax = 50; 
+    }
+    update() {
+        this.angle += 0.02;
+        this.x = PLAYER.x + Math.cos(this.angle) * this.dist;
+        this.y = PLAYER.y + Math.sin(this.angle) * this.dist;
+
+        if(this.cooldown > 0) this.cooldown--;
+        else {
+            // Find target
+            const target = entities.enemies.find(e => Math.hypot(e.x - this.x, e.y - this.y) < this.range);
+            if(target) {
+                entities.projectiles.push(new Projectile(this.x, this.y, target, 'bullet'));
+                this.cooldown = this.cdMax;
+            }
+        }
+    }
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = '#00ff88';
+        ctx.fillRect(-5, -5, 10, 10);
+        ctx.restore();
+    }
+}
+
+class Projectile {
+    constructor(x, y, target, type) {
+        this.x = x; this.y = y; this.target = target;
+        this.type = type; // 'bullet' or 'missile'
+        this.speed = type === 'missile' ? 4 : 8;
+        this.active = true;
+    }
+    update() {
+        if(!this.target || this.target.dead) { this.active = false; return; }
+        const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
+        const d = Math.hypot(dx, dy);
+
+        if(d < 10) {
+            this.active = false;
+            if(this.type === 'missile') {
+                // AoE
+                spawnParticle(this.x, this.y, 15, '#ffaa00');
+                entities.enemies.forEach(e => {
+                    if(Math.hypot(e.x - this.x, e.y - this.y) < 80) { // 80px Blast radius
+                        damageEnemy(e, PLAYER.missileDmg, false);
+                    }
+                });
+                // Shockwave visual
+                spawnFloatingText(this.x, this.y, "BOOM", '#ffaa00');
+            } else {
+                // Single Target
+                damageEnemy(this.target, 8, false); // Turret dmg fixed at 8
+                spawnParticle(this.x, this.y, 3, '#00ff88');
+            }
+        } else {
+            this.x += (dx/d) * this.speed;
+            this.y += (dy/d) * this.speed;
+            if(this.type === 'missile') spawnParticle(this.x, this.y, 1, '#555'); // Smoke trail
+        }
+    }
+    draw(ctx) {
+        ctx.beginPath();
+        if(this.type === 'missile') {
+            ctx.arc(this.x, this.y, 5, 0, Math.PI*2);
+            ctx.fillStyle = '#ffaa00';
+        } else {
+            ctx.arc(this.x, this.y, 3, 0, Math.PI*2);
+            ctx.fillStyle = '#00ff88';
+        }
+        ctx.fill();
+    }
+}
+
+class FloatingText {
+    constructor(x, y, txt, col) {
+        this.x = x + (Math.random()*20 - 10);
+        this.y = y;
+        this.txt = txt;
+        this.col = col;
+        this.life = 40;
+    }
+    update() { this.y -= 1; this.life--; }
+    draw(ctx) {
+        ctx.globalAlpha = this.life / 40;
+        ctx.fillStyle = this.col;
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(this.txt, this.x, this.y);
+        ctx.globalAlpha = 1;
+    }
+}
+
+// --- Helpers ---
+
+function spawnParticle(x, y, amt, col) {
+    for(let i=0; i<amt; i++) {
+        entities.particles.push({
+            x: x, y: y,
+            vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
+            life: 1.0, col: col
+        });
+    }
+}
+
+function spawnFloatingText(x, y, txt, col) {
+    entities.texts.push(new FloatingText(x, y, txt, col));
+}
+
+function damageEnemy(e, amt, crit) {
+    e.hp -= amt;
+    if(crit) spawnFloatingText(e.x, e.y - 10, "CRIT " + Math.floor(amt), '#ff0055');
+    else spawnFloatingText(e.x, e.y, Math.floor(amt), '#fff');
+
+    if(e.hp <= 0 && !e.dead) {
+        e.dead = true;
+        STATE.money += e.value;
+        spawnParticle(e.x, e.y, 10, e.color);
+        renderShop(); // Update shop buttons state
+    }
+}
+
+function takeDamage(amt) {
+    STATE.health -= amt;
+    spawnParticle(PLAYER.x, PLAYER.y, 20, '#f00');
+    if(STATE.health <= 0) {
+        STATE.active = false;
+        document.getElementById('game-over').style.display = 'flex';
+        document.getElementById('final-wave').innerText = STATE.wave;
+    }
+}
+
+// --- Shop Logic ---
+function initShop() {
+    const grid = document.getElementById('shop-grid');
+    grid.innerHTML = '';
+    UPGRADES.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.id = `upg-${u.id}`;
+        div.onclick = () => buyUpgrade(u);
+        div.innerHTML = `
+            <div>
+                <h3>${u.name}</h3>
+                <div class="cost">${u.base}</div>
+            </div>
+            <div>
+                <div class="desc">${u.desc}</div>
+                <div class="lvl" id="lvl-${u.id}">${u.lvl}</div>
+            </div>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function buyUpgrade(u) {
+    if(!STATE.active || STATE.money < u.base) return;
+    
+    STATE.money -= u.base;
+    u.lvl++;
+    u.base = Math.floor(u.base * u.mult);
+    u.act(u);
+    
+    // Update DOM
+    const card = document.getElementById(`upg-${u.id}`);
+    card.querySelector('.cost').innerText = u.base;
+    card.querySelector(`#lvl-${u.id}`).innerText = u.lvl;
+    
+    // Special Text Update for Missiles
+    if(u.id === 'missile' && PLAYER.missileUnlock) {
+        card.querySelector('.desc').innerText = "Dmg +15 / CD -10";
+    }
+
+    renderShop();
+}
+
+function renderShop() {
+    // Enable/Disable buttons based on money
+    UPGRADES.forEach(u => {
+        const el = document.getElementById(`upg-${u.id}`);
+        if(STATE.money < u.base) el.classList.add('disabled');
+        else el.classList.remove('disabled');
+    });
+}
+
+// --- Main Loop ---
+
+function gameLoop(time) {
+    if(!STATE.active) return;
+    const dt = time - STATE.lastTime;
+    STATE.lastTime = time;
+    STATE.frame++;
+
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.2)'; // Trails
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Spawning
+    if(STATE.frame % Math.max(20, 100 - (STATE.wave * 5)) === 0) {
+        entities.enemies.push(new Enemy());
+    }
+    // Wave Progress
+    if(entities.enemies.length > 5 && STATE.frame % 1000 === 0) {
+        STATE.wave++;
+        spawnFloatingText(PLAYER.x, PLAYER.y - 100, "WAVE " + STATE.wave, '#fff');
+    }
+
+    // 2. Economy Timer (Interest)
+    STATE.secTimer++;
+    if(STATE.secTimer > 60) {
+        STATE.secTimer = 0;
+        // Interest calculation
+        const interest = Math.floor(STATE.money * PLAYER.interestRate);
+        if(interest > 0) {
+            STATE.money += interest;
+            spawnFloatingText(PLAYER.x, PLAYER.y - 60, `+${interest} Bank`, '#00ff88');
+        }
+        
+        // Auto Clicker
+        if(PLAYER.autoClickSpeed > 0) {
+            PLAYER.autoClickTimer += PLAYER.autoClickSpeed;
+            while(PLAYER.autoClickTimer >= 1) {
+                // Find nearest enemy
+                let nearest = null;
+                let minDist = 9999;
+                entities.enemies.forEach(e => {
+                    const d = Math.hypot(e.x - PLAYER.x, e.y - PLAYER.y);
+                    if(d < minDist) { minDist = d; nearest = e; }
+                });
+                if(nearest) firePlayerShot(nearest.x, nearest.y);
+                PLAYER.autoClickTimer--;
+            }
+        }
+
+        // Update UI Text
+        document.getElementById('ui-money').innerText = Math.floor(STATE.money);
+        document.getElementById('ui-income').innerText = `+${interest}/s`;
+        document.getElementById('ui-hp').innerText = STATE.health + "%";
+        document.getElementById('ui-wave').innerText = STATE.wave;
+        renderShop();
+    }
+
+    // 3. Logic: Missile Launcher
+    if(PLAYER.missileUnlock) {
+        PLAYER.missileTimer++;
+        if(PLAYER.missileTimer >= PLAYER.missileCooldown && entities.enemies.length > 0) {
+            PLAYER.missileTimer = 0;
+            const target = en 0 && !e.dead) {
+        e.dead = true;
+        STATE.money += e.value + PLAYER.bountyBonus; // ИЗМЕНЕНИЕ: Учёт бонуса за убийство
+        spawnParticle(e.x, e.y, 10, e.color);
+        renderShop(); // Update shop buttons state
+    }
+}
+
+function takeDamage(amt) {
+    STATE.health -= amt;
+    spawnParticle(PLAYER.x, PLAYER.y, 20, '#f00');
+    if(STATE.health <= 0) {
+        STATE.active = false;
+        document.getElementById('game-over').style.display = 'flex';
+        document.getElementById('final-wave').innerText = STATE.wave;
+    }
+}
+
+// --- Shop Logic ---
+function initShop() {
+    const grid = document.getElementById('shop-grid');
+    grid.innerHTML = '';
+    UPGRADES.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.id = `upg-${u.id}`;
+        div.onclick = () => buyUpgrade(u);
+        div.innerHTML = `
+            <div>
+                <h3>${u.name}</h3>
+                <div class="cost">${u.base}</div>
+            </div>
+            <div>
+                <div class="desc">${u.desc}</div>
+                <div class="lvl" id="lvl-${u.id}">${u.lvl}</div>
+            </div>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function buyUpgrade(u) {
+    if(!STATE.active || STATE.money < u.base) return;
+    
+    STATE.money -= u.base;
+    u.lvl++;
+    u.base = Math.floor(u.base * u.mult);
+    u.act(u);
+    
+    // Update DOM
+    const card = document.getElementById(`upg-${u.id}`);
+    card.querySelector('.cost').innerText = u.base;
+    card.querySelector(`#lvl-${u.id}`).innerText = u.lvl;
+    
+    // Special Text Update for Missiles
+    if(u.id === 'missile' && PLAYER.missileUnlock) {
+        card.querySelector('.desc').innerText = "Dmg +15 / CD -10";
+    }
+
+    renderShop();
+}
+
+function renderShop() {
+    // Enable/Disable buttons based on money
+    UPGRADES.forEach(u => {
+        const el = document.getElementById(`upg-${u.id}`);
+        if(STATE.money < u.base) el.classList.add('disabled');
+        else el.classList.remove('disabled');
+    });
+}
+
+// --- Main Loop ---
+
+function gameLoop(time) {
+    if(!STATE.active) return;
+    const dt = time - STATE.lastTime;
+    STATE.lastTime = time;
+    STATE.frame++;
+
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.2)'; // Trails
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Spawning
+    if(STATE.frame % Math.max(20, 100 - (STATE.wave * 5)) === 0) {
+        entities.enemies.push(new Enemy());
+    }
+    // Wave Progress
+    if(entities.enemies.length > 5 && STATE.frame % 1000 === 0) {
+        STATE.wave++;
+        spawnFloatingText(PLAYER.x, PLAYER.y - 100, "WAVE " + STATE.wave, '#fff');
+    }
+
+    // 2. Economy Timer (Interest)
+    STATE.secTimer++;
+    if(STATE.secTimer > 60) {
+        STATE.secTimer = 0;
+        // Interest calculation
+        const interest = Math.floor(STATE.money * PLAYER.interestRate);
+        if(interest > 0) {
+            STATE.money += interest;
+            spawnFloatingText(PLAYER.x, PLAYER.y - 60, `+${interest} Bank`, '#00ff88');
+        }
+        
+        // Auto Clicker
+        if(PLAYER.autoClickSpeed > 0) {
+            PLAYER.autoClickTimer += PLAYER.autoClickSpeed;
+            while(PLAYER.autoClickTimer >= 1) {
+                // Find nearest enemy
+                let nearest            padding: 10px 20px; 
             border-bottom: 2px solid var(--primary); 
             display: flex; 
             gap: 15px; /* Уменьшаем gap для мобильных устройств */
