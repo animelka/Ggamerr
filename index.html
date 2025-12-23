@@ -99,8 +99,18 @@
 <script>
 
 // =========================================================
-// !!! НОВЫЙ БЛОК: РЕГИСТРАЦИЯ SERVICE WORKER !!!
+// !!! ИЗМЕНЕНИЯ ДЛЯ SERVICE WORKER (SW) !!!
+// - Используем имя вашего репозитория: 'Scamlinktester'
+// - Используем имя файла SW: 'serviceworker.js'
 // =========================================================
+
+// Указываем точное имя вашего репозитория на GitHub Pages
+const REPO_NAME = 'Scamlinktester'; 
+// Имя скрипта Service Worker
+const SW_FILENAME = 'serviceworker.js'; 
+
+const SW_PATH = `/${REPO_NAME}/${SW_FILENAME}`;
+const SW_SCOPE = `/${REPO_NAME}/`;
 
 // Функция для отображения сообщения об ошибке
 function displayError(message) {
@@ -119,19 +129,20 @@ function displayError(message) {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Регистрация Service Worker
-        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+        // Регистрация Service Worker с обновленным путем и областью действия
+        navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE })
             .then(registration => {
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
             })
             .catch(error => {
-                // Если регистрация Service Worker не удалась (например, из-за ошибки CORS или пути)
-                // В этом случае игра, вероятно, не сможет работать офлайн.
+                // Если регистрация Service Worker не удалась (ошибка 404, если путь неверный)
                 console.error('ServiceWorker registration failed:', error);
+                // Это не блокирует запуск игры, но предупреждает о невозможности офлайна
             });
     });
 }
 // =========================================================
+
 
 window.onload = function() {
     const canvas = document.getElementById('gameCanvas');
@@ -149,6 +160,10 @@ window.onload = function() {
     const languageSwitcher = document.getElementById('language-switcher');
     const colorLabel = document.getElementById('color-label');
     const loadingText = document.getElementById('loading-text');
+
+    // !!! ИСПРАВЛЕНИЕ ОШИБКИ ReferenceError: loaderProgress is not defined !!!
+    const loaderProgress = document.getElementById('loader-progress');
+    // !!! ИСПРАВЛЕНИЕ ОШИБКИ ReferenceError: loaderProgress is not defined !!!
 
     let GAME_WIDTH, GAME_HEIGHT;
     let state = 'LOADING'; 
