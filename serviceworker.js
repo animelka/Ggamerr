@@ -1,73 +1,93 @@
 const CACHE_NAME = 'ultimate-sky-diver-cache-v1';
-const OFFLINE_URL = '/ultimate_sky_diver.html'; // Имя вашего основного файла игры
-// Файл для кэширования: сам основной скрипт
+
+// !!! ВАЖНО: Указываем точное имя вашего репозитория на GitHub Pages !!!
+const REPO_NAME = 'Scamlinktester'; 
+
+// Главный файл HTML, который должен загружаться при доступе к корню репозитория
+const OFFLINE_URL_FILE = 'index.html'; 
+
+// Файлы, которые мы гарантированно должны закэшировать
 const urlsToCache = [
-  OFFLINE_URL
+  // 1. Корень репозитория (когда пользователь заходит на https://animelka.github.io/Scamlinktester/)
+  `/${REPO_NAME}/`, 
+  // 2. Явный путь к главному HTML файлу (необходимо для кэширования его содержимого)
+  `/${REPO_NAME}/${OFFLINE_URL_FILE}`
+  // Если у вас есть другие критические ресурсы (изображения, шрифты), добавьте их сюда
 ];
-
-// Специальное сообщение об ошибке, которое вернет Service Worker,
-// если файл не найден в кэше в режиме офлайн.
-// Мы не можем вернуть JavaScript, но можем вернуть специальный ответ, который 
-// будет иметь пустой или измененный заголовок, который вызовет ошибку в браузере.
-const ERROR_RESPONSE_BODY = "error 134";
-
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache, adding game file...');
-        // Попытка кэширования основного скрипта
-        return cache.addAll(urlsToCache);
+        console.log('Opened cache, adding critical resources...');
+        // Кэшируем файлы
+        // Если хотя бы один файл не загрузится (нет интернета при установке), Service Worker не активируется
+        return cache.addAll(urlsToCache); 
       })
       .catch(error => {
-          // Если ошибка при первом кэшировании (нет интернета), это нормально.
-          // Главное, чтобы Service Worker активировался.
-          console.error("Critical resources failed to install. This is normal if offline.", error);
+          // Выводим ошибку, но даем Service Worker'у завершить установку,
+          // если он смог закэшировать хотя бы себя
+          console.error("Failed to cache critical resources (URLs might be wrong or no network):", error);
       })
   );
 });
 
 self.addEventListener('fetch', event => {
+  // Мы обрабатываем только GET-запросы
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Упрощенная логика: Cache-first, затем Network, с запасным вариантом для главной страницы
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Функция 1: Офлайн основного скрипта (Cache-first)
+        // 1. Если файл найден в кэше, возвращаем его сразу (Cache-first)
         if (response) {
-          return response; // Файл найден в кэше, возвращаем его
+          return response;
         }
         
-        // Если запрос не найден в кэше, делаем сетевой запрос
+        // 2. Если не найден в кэше, делаем сетевой запрос
         return fetch(event.request).catch(() => {
-            // Функция 2: Обработка ошибки
-            // Если мы офлайн И не смогли найти файл в кэше,
-            // возвращаем специальный ответ для главной страницы.
-            
-            // Если запрос совпадает с URL вашей игры И мы сейчас офлайн,
-            if (event.request.url.includes(OFFLINE_URL) && !navigator.onLine) {
-                 // Вариант 1: Возвращаем HTML с сообщением об ошибке
+            // 3. Обработка ошибки (Network failed, то есть мы, вероятно, офлайн)
+
+            // Проверяем, пытался ли браузер загрузить корень репозитория (`/Scamlinktester/`) 
+            // или главный HTML-файл (`/Scamlinktester/index.html`)
+            const isHtmlRequest = event.request.url.endsWith(`/${REPO_NAME}/`) || 
+                                  event.request.url.endsWith(`/${REPO_NAME}/${OFFLINE_URL_FILE}`);
+
+            if (isHtmlRequest) {
+                // Если мы офлайн и не смогли найти главную страницу даже в кэше
+                // (это значит, что кэширование при первом визите не сработало),
+                // возвращаем специальное HTML-сообщение.
                  return new Response(`
-                     <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:white; display:flex; justify-content:center; align-items:center; font-family:sans-serif; text-align:center;">
-                         <h1>ERROR 134</h1>
-                         <p>Maybe your game was not cached. This means that you need to join the game first time with internet to load. Try again with internet.</p>
-                     </div>
+                   <!DOCTYPE html>
+                   <html lang="ru">
+                   <body style="background:#333; color:white; font-family:sans-serif; text-align:center; padding-top: 50px;">
+                       <h1>ОФФЛАЙН: КЭШ НЕ НАЙДЕН</h1>
+                       <p>Для запуска игры в автономном режиме необходимо было посетить страницу хотя бы один раз, когда у вас было подключение к Интернету.</p>
+                       <p>Пожалуйста, подключитесь к сети и перезагрузите страницу.</p>
+                       <p>Код ошибки: 134</p>
+                   </body>
+                   </html>
                  `, { headers: { 'Content-Type': 'text/html' } });
             }
-
-            // Вариант 2: Если это не основной файл и мы офлайн, просто возвращаем пустой ответ
+            
+            // Если это какой-то другой ресурс (изображение, CSS, и т.д.), просто возвращаем 503
             return new Response(null, { status: 503, statusText: 'Service Unavailable' });
         });
       })
   );
 });
 
-
+// Активация: удаляем старые кэши
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
+          // Удаляем кэши, которые не соответствуют текущему CACHE_NAME
           if (cacheWhitelist.indexOf(cacheName) === -1) {
             return caches.delete(cacheName);
           }
