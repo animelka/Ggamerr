@@ -3,207 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tushkanchik Clicker | Hub</title>
+    <title>Центр Обновлений | Tushkanchik Clicker</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #05020a;
-            --panel: #120a1f;
-            --accent: #ff00ff; /* Неоновый розовый */
-            --gold: #ffc107;
+            --bg: #0b0616;
+            --panel: #1a102e;
+            --accent: #ffc107; /* Золотой из игры */
+            --neon: #7000ff;
             --text: #ffffff;
-            --shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            --text-dim: #a093c4;
         }
 
         body {
             font-family: 'Exo 2', sans-serif;
             background-color: var(--bg);
-            background-image: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #05020a 100%);
+            background-image: 
+                radial-gradient(circle at 20% 20%, #1d0f35 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, #160a2c 0%, transparent 40%);
             color: var(--text);
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
-        /* Заголовок в стиле игры */
+        /* Шапка */
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin: 40px 0;
+            border: 2px solid var(--accent);
+            padding: 20px 40px;
+            background: rgba(26, 16, 46, 0.8);
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.2);
+            border-radius: 2px; /* Угловатый стиль */
         }
 
         .header h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            letter-spacing: 3px;
-            color: var(--gold);
-            text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+            font-size: 2rem;
+            letter-spacing: 5px;
+            color: var(--accent);
             margin: 0;
+            text-transform: uppercase;
         }
 
         .header p {
-            color: var(--accent);
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 2px;
+            color: var(--text-dim);
             font-size: 0.8rem;
-            margin-top: 5px;
+            letter-spacing: 3px;
+            margin: 10px 0 0 0;
         }
 
-        /* Контейнер для списка */
         .container {
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
 
-        /* Карточка файла */
-        .apk-card {
+        /* Карточка обновления */
+        .update-card {
             background: var(--panel);
-            border-left: 4px solid var(--accent);
+            border: 1px solid #2d1b4d;
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .apk-card:hover {
-            transform: scale(1.02);
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--gold);
-        }
-
-        .apk-info {
             display: flex;
             flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .apk-title {
+        .update-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px rgba(112, 0, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .file-name {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--text);
-            margin-bottom: 5px;
+            display: block;
         }
 
-        .apk-date {
-            font-size: 0.75rem;
-            color: #8a7fb1;
+        .file-meta {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 5px;
         }
 
-        /* Кнопка скачать */
-        .btn-download {
-            background: linear-gradient(45deg, var(--accent), #7000ff);
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+        .badge {
+            background: var(--accent);
+            color: #000;
+            padding: 4px 10px;
             font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 15px rgba(255, 0, 255, 0.4);
+            font-size: 0.7rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Кнопка */
+        .btn-install {
+            background: var(--accent);
+            color: #000;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 800;
+            text-align: center;
             transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn-download:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 0 20px var(--accent);
+        .btn-install:hover {
+            background: #fff;
+            box-shadow: 0 0 20px #fff;
         }
 
-        /* Статус загрузки */
-        #loader {
+        /* Загрузка */
+        #status {
             font-family: 'Orbitron', sans-serif;
             color: var(--accent);
-            text-align: center;
-            margin-top: 50px;
-            animation: pulse 1.5s infinite;
+            margin-top: 40px;
+            letter-spacing: 2px;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        /* Пустой список */
-        .empty-msg {
+        .footer {
+            margin-top: auto;
+            padding: 40px;
+            color: #4e4070;
+            font-size: 0.7rem;
             text-align: center;
-            color: #554a6d;
-            border: 2px dashed #332a44;
-            padding: 30px;
-            border-radius: 15px;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>TUSHCHKAN X</h1>
-        <p>Central Update Hub</p>
+        <h1>Tushkanchik X</h1>
+        <p>Архив обновлений</p>
     </div>
 
     <div class="container">
-        <div id="loader">INITIALIZING SCAN...</div>
-        <div id="apk-list"></div>
+        <div id="status">Сканирование серверов...</div>
+        <div id="list"></div>
+    </div>
+
+    <div class="footer">
+        Animelka Dev © 2026<br>
+        Все файлы проверены на наличие вирусов
     </div>
 
     <script>
-        // Твои данные
-        const GITHUB_USER = 'animelka'; 
-        const GITHUB_REPO = 'TuskanchikClickerUpdates';
+        const CONFIG = {
+            user: 'animelka',
+            repo: 'TuskanchikClickerUpdates'
+        };
 
-        async function loadFiles() {
-            const listDiv = document.getElementById('apk-list');
-            const loader = document.getElementById('loader');
+        async function fetchApks() {
+            const listDiv = document.getElementById('list');
+            const status = document.getElementById('status');
 
             try {
-                // Получаем список файлов в репозитории
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`);
-                const data = await response.json();
-
-                if (!Array.isArray(data)) throw new Error();
-
-                // Фильтруем только APK
-                const apks = data.filter(f => f.name.toLowerCase().endsWith('.apk'));
-
-                loader.style.display = 'none';
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/contents/`);
+                const files = await res.json();
+                
+                const apks = files.filter(f => f.name.toLowerCase().endsWith('.apk'));
+                status.style.display = 'none';
 
                 if (apks.length === 0) {
-                    listDiv.innerHTML = `<div class="empty-msg">No APK files detected in orbit.</div>`;
+                    listDiv.innerHTML = '<div style="text-align:center; color:#554a6d">Обновлений не найдено. Зайдите позже.</div>';
                     return;
                 }
 
                 for (const file of apks) {
-                    // Тянем дату последнего коммита для этого файла
-                    const commitRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/commits?path=${file.path}&per_page=1`);
+                    // Получаем дату и размер
+                    const commitRes = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`);
                     const commitData = await commitRes.json();
-                    const dateStr = commitData[0] ? new Date(commitData[0].commit.committer.date).toLocaleDateString('ru-RU', {
-                        day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                    }) : "Unknown Date";
+                    
+                    const date = commitData[0] ? new Date(commitData[0].commit.committer.date).toLocaleDateString('ru-RU', {
+                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+                    }) : "Неизвестно";
+
+                    const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
 
                     const card = document.createElement('div');
-                    card.className = 'apk-card';
+                    card.className = 'update-card';
                     card.innerHTML = `
-                        <div class="apk-info">
-                            <span class="apk-title">${file.name}</span>
-                            <span class="apk-date">📡 Deploy date: ${dateStr}</span>
+                        <div class="card-top">
+                            <div class="apk-info">
+                                <span class="file-name">📦 ${file.name}</span>
+                                <span class="file-meta">Загружено: ${date} | Размер: ${sizeMb} MB</span>
+                            </div>
+                            <span class="badge">Актуально</span>
                         </div>
-                        <a href="${file.download_url}" class="btn-download">INSTALL</a>
+                        <a href="${file.download_url}" class="btn-install">Установить APK</a>
                     `;
                     listDiv.appendChild(card);
                 }
-            } catch (e) {
-                loader.innerHTML = "CRITICAL ERROR: SCAN FAILED";
-                loader.style.color = "red";
+            } catch (err) {
+                status.innerHTML = "ОШИБКА ПОДКЛЮЧЕНИЯ К СЕТИ";
+                status.style.color = "red";
             }
         }
 
-        loadFiles();
+        fetchApks();
     </script>
 </body>
 </html>
