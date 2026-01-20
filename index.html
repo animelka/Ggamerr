@@ -2,665 +2,146 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="game-title">Animelka's Dev: High Speed Dropper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tushkanchik Clicker — Updates</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CORE STYLES --- */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #7abaff; }
-        /* Использование гарантированно совместимого шрифта */
-        body { font-family: sans-serif; color: #000; user-select: none; }
-        
-        #game-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
-        canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-
-        /* --- UI STYLES --- */
-        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; pointer-events: none; transition: opacity 0.5s; }
-        .interactive { pointer-events: auto; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); color: #fff; }
-
-        .author-title { font-size: 20px; color: #fff; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; text-shadow: 1px 1px 2px #000; }
-        .menu-title { font-size: 50px; font-weight: 900; color: #fff; text-shadow: 2px 2px 4px #000; margin-bottom: 30px; text-align: center; }
-
-        .game-button { padding: 15px 40px; font-size: 20px; font-weight: bold; color: #fff; background: #008800; border: 3px solid #00ff00; cursor: pointer; text-transform: uppercase; transition: all 0.1s; margin-bottom: 15px; }
-        .game-button:hover { background: #00aa00; }
-        
-        /* --- COLOR PICKER & LANGUAGE --- */
-        #color-picker { margin-top: 20px; display: flex; gap: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; }
-        .color-option { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: border 0.1s; }
-        .color-option.selected { border: 3px solid #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
-
-        /* Новый элемент: Переключатель языка */
-        #language-switcher { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.3); color: #fff; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 14px; z-index: 15; pointer-events: auto;}
-
-        /* --- CONTROLS --- */
-        #controls { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 50; pointer-events: none; }
-        .hud-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,0,0,0.3); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 30px; pointer-events: auto; }
-
-        /* Загрузка */
-        #loading-screen { background-color: #7abaff; z-index: 100; transition: opacity 0.5s; }
-        .loader-bar { width: 200px; height: 4px; background: #fff; margin-top: 20px; }
-        .loader-progress { width: 0%; height: 100%; background: #000; transition: width 1s; }
-        
-        /* Стили для сообщения об ошибке */
-        #error-message { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: rgba(255, 0, 0, 0.9); 
-            color: white; 
-            padding: 20px; 
-            border: 3px solid #ffaa00;
-            text-align: center;
-            font-size: 18px;
-            z-index: 100;
-            display: none; /* Сначала скрыто */
-            pointer-events: none;
+        :root {
+            --bg: #0b0616;
+            --card: #1b1429;
+            --accent: #ffc107;
+            --text: #ffffff;
+            --text-dim: #b3b3b3;
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 5px; }
+        p.subtitle { color: var(--text-dim); font-size: 0.9em; margin-bottom: 30px; }
+
+        .update-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 193, 7, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: transform 0.2s;
+        }
+
+        .update-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .apk-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--accent);
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .apk-info {
+            font-size: 0.85em;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background-color: var(--accent);
+            color: #000;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        #loader {
+            color: var(--accent);
+            margin-top: 50px;
+        }
+
+        .error { color: #ff5555; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
+    <div class="container">
+        <h1>Обновления игры</h1>
+        <p class="subtitle">Здесь всегда актуальные версии APK</p>
 
-        <div id="loading-screen" class="ui-layer">
-            <div class="author-title" style="color:#000;">ANIMELKA'S DEV</div>
-            <div style="color:#000;" id="loading-text">Loading the Ultimate Experience...</div>
-            <div class="loader-bar"><div class="loader-progress" style="background:#000;" id="loader-progress"></div></div>
-        </div>
-
-        <div id="menu-screen" class="ui-layer interactive" style="display: none;">
-            <div class="author-title" id="author-text">ANIMELKA'S DEV</div>
-            <div class="menu-title" id="menu-title">ULTIMATE SKY DIVER</div>
-            
-            <div id="high-score-display" style="font-size: 18px; color: #ff00ff; margin-bottom: 5px;"></div>
-            <div id="score-display" style="font-size: 20px; color: #fff; margin-bottom: 20px;">DEPTH: 0m</div>
-            <button class="game-button" id="play-button">START FALLING</button>
-            
-            <div id="color-label" style="font-size: 16px; margin-top: 15px;">SELECT DIVER COLOR:</div>
-            <div id="color-picker">
-                <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
-                <div class="color-option" data-color="#00ffff" style="background-color: #00ffff;"></div>
-                <div class="color-option" data-color="#ff00ff" style="background-color: #ff00ff;"></div>
-                <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
-            </div>
-        </div>
-
-        <div id="controls">
-            <div id="left-control" class="hud-btn">◄</div>
-            <div id="right-control" class="hud-btn">►</div>
-        </div>
+        <div id="loader">Загрузка списка файлов...</div>
+        <div id="updates-list"></div>
     </div>
-    
-    <div id="language-switcher">RU</div>
-    
-    <div id="error-message"></div>
 
-<script>
+    <script>
+        // --- НАСТРОЙКИ ---
+        const USERNAME = 'animelka'; // Твой логин на GitHub
+        const REPO = 'TuskanchikClickerUpdates'; // Название репозитория
 
-// =========================================================
-// !!! ИЗМЕНЕНИЯ ДЛЯ SERVICE WORKER (SW) !!!
-// - Используем имя вашего репозитория: 'Scamlinktester'
-// - Используем имя файла SW: 'serviceworker.js'
-// =========================================================
+        async function fetchUpdates() {
+            const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/`;
+            const listElement = document.getElementById('updates-list');
+            const loader = document.getElementById('loader');
 
-// Указываем точное имя вашего репозитория на GitHub Pages
-const REPO_NAME = 'Scamlinktester'; 
-// Имя скрипта Service Worker
-const SW_FILENAME = 'serviceworker.js'; 
+            try {
+                const response = await fetch(url);
+                const files = await response.json();
 
-const SW_PATH = `/${REPO_NAME}/${SW_FILENAME}`;
-const SW_SCOPE = `/${REPO_NAME}/`;
+                if (!Array.isArray(files)) throw new Error("Не удалось получить список файлов");
 
-// Функция для отображения сообщения об ошибке
-function displayError(message) {
-    const errorDiv = document.getElementById('error-message');
-    // Скрываем все игровые элементы, чтобы показать только ошибку
-    document.getElementById('game-container').style.display = 'none';
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('menu-screen').style.display = 'none';
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('language-switcher').style.display = 'none';
-    
-    errorDiv.innerHTML = message;
-    errorDiv.style.display = 'block';
-}
+                const apkFiles = files.filter(file => file.name.endsWith('.apk'));
 
+                loader.style.display = 'none';
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // Регистрация Service Worker с обновленным путем и областью действия
-        navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE })
-            .then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(error => {
-                // Если регистрация Service Worker не удалась (ошибка 404, если путь неверный)
-                console.error('ServiceWorker registration failed:', error);
-                // Это не блокирует запуск игры, но предупреждает о невозможности офлайна
-            });
-    });
-}
-// =========================================================
-
-
-window.onload = function() {
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const loadingScreen = document.getElementById('loading-screen');
-    const menuScreen = document.getElementById('menu-screen');
-    const playButton = document.getElementById('play-button');
-    const colorPicker = document.getElementById('color-picker');
-    const menuTitle = document.getElementById('menu-title');
-    const scoreDisplay = document.getElementById('score-display');
-    const authorText = document.getElementById('author-text');
-    const leftBtn = document.getElementById('left-control');
-    const rightBtn = document.getElementById('right-control');
-    const highScoreDisplay = document.getElementById('high-score-display');
-    const languageSwitcher = document.getElementById('language-switcher');
-    const colorLabel = document.getElementById('color-label');
-    const loadingText = document.getElementById('loading-text');
-
-    // !!! ИСПРАВЛЕНИЕ ОШИБКИ ReferenceError: loaderProgress is not defined !!!
-    const loaderProgress = document.getElementById('loader-progress');
-    // !!! ИСПРАВЛЕНИЕ ОШИБКИ ReferenceError: loaderProgress is not defined !!!
-
-    let GAME_WIDTH, GAME_HEIGHT;
-    let state = 'LOADING'; 
-    let score = 0;
-    
-    // Инициализация Local Storage: попытка загрузить данные
-    let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
-    let currentLang = localStorage.getItem('language') || 'RU'; 
-    let playerColor = localStorage.getItem('playerColor') || '#ffff00';
-    
-    // Player settings
-    const PLAYER_BASE_SPEED = 7;
-    const PLAYER_BASE_FALL = 4;
-    const player = { x: 0, y: 0, radius: 8, speed: PLAYER_BASE_SPEED, fallSpeed: PLAYER_BASE_FALL, trail: [], color: playerColor };
-    const keys = { left: false, right: false };
-    
-    // World settings
-    let walls = [], lastWallY = 0;
-    let airParticles = []; 
-    let debrisParticles = []; 
-    let clouds = []; 
-    let cameraTargetY = 0;
-    let cameraY = 0;
-    let shakeIntensity = 0;
-    
-    const WALL_HEIGHT = 45;
-    const WALL_SPACING = 350;
-    const HOLE_SIZE_START = 180;
-    const HOLE_SIZE_MIN = 110; // Минимальная ширина прохода
-    const MAX_DIFFICULTY = 300; 
-
-    // --- LANGUAGE PACKS ---
-    const LANGUAGES = {
-        RU: {
-            TITLE: 'ULTIMATE SKY DIVER',
-            LOAD: 'Загрузка максимальной версии...',
-            PLAY: 'НАЧАТЬ ПАДЕНИЕ',
-            RETRY: 'ПОПРОБОВАТЬ СНОВА',
-            CRASHED: 'РАЗБИЛИСЬ!',
-            DEPTH: 'ГЛУБИНА',
-            FINAL_DEPTH: 'ФИНАЛЬНАЯ ГЛУБИНА',
-            HIGH_SCORE: 'РЕКОРД',
-            COLOR_LABEL: 'ВЫБОР ЦВЕТА ШАРИКА:'
-        },
-        EN: {
-            TITLE: 'ULTIMATE SKY DIVER',
-            LOAD: 'Loading the Ultimate Experience...',
-            PLAY: 'START FALLING',
-            RETRY: 'TRY AGAIN',
-            CRASHED: 'CRASHED!',
-            DEPTH: 'DEPTH',
-            FINAL_DEPTH: 'FINAL DEPTH',
-            HIGH_SCORE: 'HIGH SCORE',
-            COLOR_LABEL: 'SELECT DIVER COLOR:'
-        }
-    };
-    
-    // --- LANGUAGE SWITCHER LOGIC ---
-    function updateLanguage() {
-        const lang = LANGUAGES[currentLang];
-        document.getElementById('game-title').innerText = `Animelka's Dev: ${lang.TITLE}`;
-        menuTitle.innerText = lang.TITLE;
-        loadingText.innerText = lang.LOAD;
-        playButton.innerText = lang.PLAY;
-        colorLabel.innerText = lang.COLOR_LABEL;
-        languageSwitcher.innerText = currentLang;
-        updateScoreDisplay(score);
-        updateHighScoreDisplay();
-        localStorage.setItem('language', currentLang);
-    }
-    
-    languageSwitcher.onclick = () => {
-        currentLang = (currentLang === 'RU') ? 'EN' : 'RU';
-        updateLanguage();
-    };
-
-    function updateScoreDisplay(currentScore) {
-        const lang = LANGUAGES[currentLang];
-        scoreDisplay.innerText = `${lang.DEPTH}: ${currentScore}m`;
-    }
-    
-    function updateHighScoreDisplay() {
-        const lang = LANGUAGES[currentLang];
-        highScoreDisplay.innerText = `${lang.HIGH_SCORE}: ${highScore}m`;
-    }
-
-    // --- COLOR CUSTOMIZATION ---
-    colorPicker.querySelectorAll('.color-option').forEach(option => {
-        if (option.getAttribute('data-color') === playerColor) {
-            option.classList.add('selected');
-        }
-        option.addEventListener('click', function() {
-            colorPicker.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-            player.color = this.getAttribute('data-color');
-            localStorage.setItem('playerColor', player.color);
-        });
-    });
-
-    // --- АДАПТАЦИЯ И РЕСАЙЗ ---
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        GAME_WIDTH = canvas.width;
-        GAME_HEIGHT = canvas.height;
-        player.x = GAME_WIDTH / 2;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    // --- CLOUD GENERATION ---
-    function generateCloud(x, y, size) {
-        clouds.push({ x: x, y: y, size: size, speedX: (Math.random() - 0.5) * 0.5 });
-    }
-    
-    // Инициализация облаков при старте
-    for(let i=0; i<15; i++) generateCloud(Math.random() * GAME_WIDTH, Math.random() * GAME_HEIGHT * 2, Math.random() * 50 + 30);
-
-
-    // --- INIT & MENU ---
-    // Устанавливаем язык и готовим UI
-    updateLanguage();
-
-    // Ускоренная загрузка для локального файла
-    setTimeout(() => { loaderProgress.style.width = '100%'; }, 100);
-    setTimeout(() => {
-        loadingScreen.style.opacity = '0';
-        setTimeout(() => { 
-            // !!! ВАЖНАЯ ПРОВЕРКА !!!
-            // Проверяем, удалось ли загрузить основной скрипт через сеть (при первом посещении)
-            // Если мы офлайн и попали сюда, значит, игра загрузилась из кэша.
-            // Если при загрузке произошла ошибка, это обработает Service Worker (см. ниже).
-            
-            // Если все ОК, показываем меню
-            if(document.getElementById('error-message').style.display !== 'block') {
-                 loadingScreen.style.display = 'none'; 
-                 showMenu(); 
-            }
-        }, 500);
-    }, 500); 
-
-    function showMenu(dead = false) {
-        state = 'MENU';
-        menuScreen.style.opacity = 1;
-        menuScreen.style.display = 'flex';
-        updateHighScoreDisplay();
-        
-        const lang = LANGUAGES[currentLang];
-        
-        if(dead) {
-            authorText.style.display = 'none';
-            menuTitle.innerHTML = lang.CRASHED;
-            menuTitle.style.color = 'red';
-            scoreDisplay.style.display = 'block';
-            scoreDisplay.innerText = `${lang.FINAL_DEPTH}: ${score}m`;
-            playButton.innerText = lang.RETRY;
-            
-            setTimeout(() => {
-                 menuTitle.innerHTML = lang.TITLE;
-                 menuTitle.style.color = 'white';
-                 authorText.style.display = 'block';
-                 playButton.innerText = lang.PLAY;
-            }, 1000); 
-
-        } else {
-            authorText.style.display = 'block';
-            menuTitle.innerHTML = lang.TITLE;
-            menuTitle.style.color = 'white';
-            scoreDisplay.style.display = 'none';
-            playButton.innerText = lang.PLAY;
-        }
-    }
-
-    playButton.onclick = () => {
-        state = 'PLAYING';
-        menuScreen.style.opacity = 0;
-        setTimeout(() => { menuScreen.style.display = 'none'; }, 500);
-        
-        score = 0; 
-        player.y = 0; player.x = GAME_WIDTH / 2; 
-        player.fallSpeed = PLAYER_BASE_FALL;
-        player.speed = PLAYER_BASE_SPEED;
-        player.trail = [];
-        walls = []; debrisParticles = []; airParticles = [];
-        cameraY = 0; cameraTargetY = 0;
-        lastWallY = GAME_HEIGHT;
-        // Заполнение начальными стенами
-        for(let i=0; i<5; i++) generateWall();
-    };
-
-    // --- INPUT ---
-    const setKey = (k, v) => keys[k] = v;
-    window.onkeydown = e => { if(e.key==='ArrowLeft'||e.key==='a') setKey('left',1); if(e.key==='ArrowRight'||e.key==='d') setKey('right',1); };
-    window.onkeyup = e => { if(e.key==='ArrowLeft'||e.key==='a') setKey('left',0); if(e.key==='ArrowRight'||e.key==='d') setKey('right',0); };
-    
-    const bindTouch = (el, key) => {
-        el.addEventListener('touchstart', (e)=>{ e.preventDefault(); setKey(key,1); });
-        el.addEventListener('touchend', (e)=>{ e.preventDefault(); setKey(key,0); });
-        el.addEventListener('mousedown', ()=>{ setKey(key,1); });
-        el.addEventListener('mouseup', ()=>{ setKey(key,0); });
-    };
-    bindTouch(leftBtn, 'left');
-    bindTouch(rightBtn, 'right');
-
-    // --- СИСТЕМЫ ЧАСТИЦ ---
-    function createDebrisExplosion(x, y) {
-        shakeIntensity = 30;
-        for(let i=0; i<50; i++) {
-            debrisParticles.push({
-                x: x, y: y,
-                vx: (Math.random()-0.5)*12, 
-                vy: (Math.random()-0.5)*12,
-                life: 1.0,
-                color: '#6B4423'
-            });
-        }
-    }
-
-    function createAirParticle() {
-        if (state !== 'PLAYING' || Math.random() < 0.7) return; 
-        airParticles.push({
-            x: player.x + (Math.random()-0.5) * player.radius * 3, 
-            y: player.y - player.radius, 
-            vx: (Math.random()-0.5) * 2,
-            vy: -player.fallSpeed * 1.5,
-            life: 0.5,
-            radius: Math.random() * 2 + 1
-        });
-    }
-
-    function updateParticles(deltaTime) {
-        debrisParticles.forEach((p, i) => {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.5;
-            p.life -= 0.03 * deltaTime;
-            if (p.life <= 0) debrisParticles.splice(i, 1);
-        });
-
-        airParticles.forEach((p, i) => {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life -= 0.05 * deltaTime;
-            if (p.life <= 0) airParticles.splice(i, 1);
-        });
-    }
-
-    // --- ЛОГИКА ИГРЫ И УСКОРЕНИЕ ---
-    function generateWall() {
-        const difficulty = Math.min(1, score / MAX_DIFFICULTY);
-
-        player.fallSpeed = PLAYER_BASE_FALL + (difficulty * 6); 
-        player.speed = PLAYER_BASE_SPEED + (difficulty * 5); 
-
-        // 1. Расчет ширины прохода
-        const currentHole = HOLE_SIZE_START - (difficulty * (HOLE_SIZE_START - HOLE_SIZE_MIN));
-        
-        // 2. Расчет безопасной области спавна
-        // Минимальный безопасный отступ (Радиус шарика + небольшой запас)
-        const SAFE_PADDING = player.radius + 5;
-        const minX = SAFE_PADDING; 
-        // Максимальная X-позиция для начала отверстия
-        const maxX = GAME_WIDTH - currentHole - SAFE_PADDING; 
-
-        // 3. Генерация X-координаты прохода
-        let holeX;
-        if (maxX <= minX) {
-            // Если экран слишком узкий, центрируем проход
-            holeX = (GAME_WIDTH - currentHole) / 2;
-        } else {
-            // Случайная позиция в безопасной области
-            holeX = Math.random() * (maxX - minX) + minX;
-        }
-
-        const y = lastWallY + WALL_SPACING;
-        
-        walls.push({ y: y, holeX: holeX, holeW: currentHole, h: WALL_HEIGHT, passed: false, color: '#6B4423' });
-        lastWallY = y;
-    }
-
-    function update() {
-        if(state !== 'PLAYING') return;
-
-        const deltaTime = 1;
-
-        if(keys.left) player.x -= player.speed * deltaTime;
-        if(keys.right) player.x += player.speed * deltaTime;
-        if(player.x < player.radius) player.x = player.radius;
-        if(player.x > GAME_WIDTH-player.radius) player.x = GAME_WIDTH-player.radius;
-
-        player.y += player.fallSpeed * deltaTime;
-        cameraTargetY = player.y - GAME_HEIGHT / 3;
-        
-        cameraY += (cameraTargetY - cameraY) * 0.1; 
-
-        player.trail.push({x: player.x, y: player.y});
-        if (player.trail.length > 15) player.trail.shift();
-
-        createAirParticle();
-        updateParticles(deltaTime);
-        
-        // Обновление облаков
-        clouds.forEach(c => {
-            c.x += c.speedX;
-            if (c.y - cameraY < -c.size * 2 || c.x < -c.size * 2 || c.x > GAME_WIDTH + c.size * 2) {
-                c.y = cameraY + GAME_HEIGHT + Math.random() * 200;
-                c.x = Math.random() * GAME_WIDTH;
-            }
-        });
-
-
-        for(let i = walls.length - 1; i >= 0; i--) {
-            const wall = walls[i];
-            
-            if(player.y > wall.y && player.y < wall.y + wall.h) {
-                // Проверка столкновения: центр игрока должен находиться на безопасном расстоянии от краев прохода
-                const isInsideHole = (player.x > wall.holeX + player.radius) && (player.x < wall.holeX + wall.holeW - player.radius);
-
-                if (!isInsideHole) {
-                    createDebrisExplosion(player.x, player.y);
-                    state = 'GAMEOVER';
-                    // Обновление рекорда
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem('highScore', highScore);
-                    }
-                    setTimeout(() => { showMenu(true); }, 1000); 
+                if (apkFiles.length === 0) {
+                    listElement.innerHTML = '<p>APK файлы пока не добавлены.</p>';
                     return;
                 }
+
+                // Сортируем: новые файлы сверху (по дате мы узнаем через доп. запрос)
+                for (const file of apkFiles) {
+                    // Получаем дату коммита для каждого файла
+                    const detailsResponse = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/commits?path=${file.path}&page=1&per_page=1`);
+                    const details = await detailsResponse.json();
+                    const date = details[0] ? new Date(details[0].commit.committer.date).toLocaleString('ru-RU') : "Дата неизвестна";
+
+                    const card = document.createElement('div');
+                    card.className = 'update-card';
+                    card.innerHTML = `
+                        <div class="apk-name">📦 ${file.name}</div>
+                        <div class="apk-info">Добавлен: ${date}</div>
+                        <a href="${file.download_url}" class="download-btn">Скачать APK</a>
+                    `;
+                    listElement.appendChild(card);
+                }
+
+            } catch (err) {
+                loader.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
             }
-            
-            if(player.y > wall.y + wall.h && !wall.passed) {
-                wall.passed = true; score++; generateWall();
-                updateScoreDisplay(score);
-            }
-
-            if(wall.y < cameraY - 100) walls.splice(i, 1);
         }
-    }
 
-    // --- РИСОВАНИЕ ---
-
-    function drawWall(w, drawY) {
-        const dirtGradient = ctx.createLinearGradient(0, drawY, 0, drawY + w.h);
-        dirtGradient.addColorStop(0, '#8d6e53'); 
-        dirtGradient.addColorStop(1, '#6B4423'); 
-        ctx.fillStyle = dirtGradient;
-        
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetY = 4;
-        
-        ctx.fillRect(0, drawY, w.holeX, w.h);
-        ctx.fillRect(w.holeX + w.holeW, drawY, GAME_WIDTH - (w.holeX+w.holeW), w.h);
-        
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-        ctx.fillRect(0, drawY, w.holeX, 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.fillRect(w.holeX + w.holeW, drawY + w.h - 2, GAME_WIDTH - (w.holeX+w.holeW), 2);
-    }
-    
-    function drawCloudShape(x, y, size) {
-        ctx.beginPath();
-        ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
-        ctx.arc(x + size * 0.8, y, size * 0.7, 0, Math.PI * 2);
-        ctx.arc(x - size * 0.5, y + size * 0.2, size * 0.5, 0, Math.PI * 2);
-        ctx.arc(x + size * 0.2, y - size * 0.3, size * 0.8, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-
-    function drawBackground(cameraY) {
-        let dx = 0, dy = 0;
-        if (shakeIntensity > 0) {
-            dx = (Math.random() - 0.5) * shakeIntensity;
-            dy = (Math.random() - 0.5) * shakeIntensity;
-            shakeIntensity *= 0.85; 
-        }
-        ctx.save();
-        ctx.translate(dx, dy);
-
-        // 1. Небо (Градиент)
-        const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-        skyGradient.addColorStop(0, '#7abaff'); 
-        skyGradient.addColorStop(1, '#a6caff');
-        ctx.fillStyle = skyGradient;
-        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-        const pOffset = -cameraY; 
-
-        // 2. Горы (Дальний план)
-        ctx.fillStyle = '#4a6743'; 
-        ctx.beginPath();
-        const mountainY = GAME_HEIGHT + pOffset * 0.05; 
-        ctx.moveTo(0, mountainY - 50); 
-        ctx.lineTo(GAME_WIDTH / 3, mountainY - 150);
-        ctx.lineTo(GAME_WIDTH / 2, mountainY - 70);
-        ctx.lineTo(GAME_WIDTH / 1.2, mountainY - 180);
-        ctx.lineTo(GAME_WIDTH, mountainY - 60);
-        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-        ctx.lineTo(0, GAME_HEIGHT);
-        ctx.fill();
-
-        // 3. Облака (Параллакс)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        clouds.forEach(c => {
-            const drawY = c.y + pOffset * 0.15;
-            if(drawY > -c.size && drawY < GAME_HEIGHT + c.size) {
-                 drawCloudShape(c.x, drawY, c.size);
-            }
-        });
-
-        // 4. Виньетка (Фокусировка)
-        const vignette = ctx.createRadialGradient(GAME_WIDTH / 2, GAME_HEIGHT / 2, 0, GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_HEIGHT);
-        vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-        
-        ctx.restore();
-    }
-
-    function draw() {
-        drawBackground(cameraY);
-
-        ctx.save();
-        let dx = 0, dy = 0;
-        if (shakeIntensity > 0) {
-            dx = (Math.random() - 0.5) * shakeIntensity;
-            dy = (Math.random() - 0.5) * shakeIntensity;
-        }
-        ctx.translate(dx, dy);
-
-        if(state === 'PLAYING' || state === 'GAMEOVER' || debrisParticles.length > 0) {
-            
-            // 1. Draw Walls
-            walls.forEach(w => {
-                const drawY = w.y - cameraY;
-                if(drawY > GAME_HEIGHT || drawY + w.h < 0) return;
-                drawWall(w, drawY);
-            });
-            
-            // 2. Draw Debris Particles
-            debrisParticles.forEach(p => {
-                const drawY = p.y - cameraY;
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, drawY, 5, 5);
-                ctx.globalAlpha = 1.0;
-            });
-            
-            if (state === 'PLAYING') {
-                // 3. Draw Air Stream Particles
-                airParticles.forEach(p => {
-                    const drawY = p.y - cameraY;
-                    ctx.globalAlpha = p.life;
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                    ctx.beginPath();
-                    ctx.arc(p.x, drawY, p.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                });
-
-                // 4. Draw Player Trail
-                player.trail.forEach((pos, index) => {
-                    const alpha = index / player.trail.length;
-                    const radius = player.radius * alpha * 0.7;
-                    ctx.beginPath();
-                    ctx.arc(pos.x, pos.y - cameraY, radius, 0, Math.PI * 2);
-                    ctx.fillStyle = player.color.replace('rgb', 'rgba').replace(')', `, ${alpha * 0.5})`);
-                    ctx.fill();
-                });
-
-                // 5. Draw Player
-                ctx.shadowBlur = 15; ctx.shadowColor = player.color;
-                ctx.beginPath(); 
-                ctx.arc(player.x, player.y - cameraY, player.radius, 0, Math.PI*2); 
-                ctx.fillStyle = player.color; 
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-
-            // 6. Draw Score (HUD)
-            ctx.font = '24px Arial, sans-serif'; 
-            ctx.fillStyle = '#000'; 
-            ctx.textAlign = 'left';
-            ctx.fillText(`${LANGUAGES[currentLang].DEPTH}: ${score}m`, 20, 40);
-        }
-        ctx.restore();
-        requestAnimationFrame(draw);
-    }
-
-    setInterval(update, 1000/60);
-    requestAnimationFrame(draw);
-};
-</script>
+        fetchUpdates();
+    </script>
 </body>
 </html>
