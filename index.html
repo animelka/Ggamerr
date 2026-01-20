@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Центр Обновлений | Tushkanchik Clicker</title>
+    <title>Tushkanchik X | Скачать</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #0b0616;
             --panel: #1a102e;
-            --accent: #ffc107; /* Золотой из игры */
-            --neon: #7000ff;
+            --accent: #ffc107;
             --text: #ffffff;
             --text-dim: #a093c4;
         }
@@ -18,9 +17,7 @@
         body {
             font-family: 'Exo 2', sans-serif;
             background-color: var(--bg);
-            background-image: 
-                radial-gradient(circle at 20% 20%, #1d0f35 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, #160a2c 0%, transparent 40%);
+            background-image: radial-gradient(circle at 50% 50%, #1d0f35 0%, #0b0616 100%);
             color: var(--text);
             margin: 0;
             display: flex;
@@ -30,119 +27,109 @@
             padding: 20px;
         }
 
-        /* Шапка */
         .header {
             text-align: center;
-            margin: 40px 0;
+            margin: 50px 0;
+            padding: 20px;
             border: 2px solid var(--accent);
-            padding: 20px 40px;
-            background: rgba(26, 16, 46, 0.8);
-            box-shadow: 0 0 20px rgba(255, 193, 7, 0.2);
-            border-radius: 2px; /* Угловатый стиль */
+            background: rgba(255, 193, 7, 0.05);
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.1);
+            border-radius: 4px;
         }
 
         .header h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 5px;
+            font-size: 2.2rem;
             color: var(--accent);
             margin: 0;
-            text-transform: uppercase;
-        }
-
-        .header p {
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            margin: 10px 0 0 0;
+            letter-spacing: 5px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
         }
 
-        /* Карточка обновления */
         .update-card {
             background: var(--panel);
+            border-radius: 15px;
+            padding: 30px;
             border: 1px solid #2d1b4d;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: all 0.3s ease;
-            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            text-align: center;
+            transition: 0.3s;
         }
 
         .update-card:hover {
             border-color: var(--accent);
-            box-shadow: 0 0 30px rgba(112, 0, 255, 0.2);
-            transform: translateY(-3px);
+            transform: translateY(-5px);
         }
 
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        .status-badge {
+            background: rgba(255, 193, 7, 0.15);
+            color: var(--accent);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
-        .file-name {
+        .info-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: var(--text);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
             display: block;
         }
 
-        .file-meta {
-            font-size: 0.8rem;
+        .last-update {
             color: var(--text-dim);
-            margin-top: 5px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            display: block;
         }
 
-        .badge {
-            background: var(--accent);
-            color: #000;
-            padding: 4px 10px;
+        /* Дата выделена неоном */
+        .date-highlight {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             font-weight: bold;
-            font-size: 0.7rem;
-            border-radius: 4px;
-            text-transform: uppercase;
         }
 
-        /* Кнопка */
-        .btn-install {
+        .btn-mega {
             background: var(--accent);
             color: #000;
             text-decoration: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 800;
-            text-align: center;
-            transition: 0.2s;
+            padding: 18px 30px;
+            border-radius: 10px;
+            font-weight: 900;
+            display: block;
+            font-size: 1rem;
+            transition: 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
         }
 
-        .btn-install:hover {
+        .btn-mega:hover {
             background: #fff;
-            box-shadow: 0 0 20px #fff;
+            box-shadow: 0 0 25px #fff;
+            transform: scale(1.03);
         }
 
-        /* Загрузка */
-        #status {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            margin-top: 40px;
-            letter-spacing: 2px;
+        .file-size {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #554a6d;
         }
 
         .footer {
             margin-top: auto;
             padding: 40px;
             color: #4e4070;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             text-align: center;
         }
     </style>
@@ -150,74 +137,29 @@
 <body>
 
     <div class="header">
-        <h1>Tushkanchik X</h1>
-        <p>Архив обновлений</p>
+        <h1>TUSHCHKAN X</h1>
     </div>
 
     <div class="container">
-        <div id="status">Сканирование серверов...</div>
-        <div id="list"></div>
+        <div class="update-card">
+            <div class="status-badge">Доступна новая версия</div>
+            
+            <span class="info-title">Tushkanchik Clicker APK</span>
+            
+            <span class="last-update">Последнее обновление: <span class="date-highlight">20 января 2026</span></span>
+            
+            <a href="https://mega.nz/file/dudShSiJ#0_0eYd6G0OVsnrINHkxDIi6Tu6pus81d2gMvB4VjEZI" target="_blank" class="btn-mega">
+                Скачать через MEGA.NZ
+            </a>
+
+            <div class="file-size">Размер файла: ~155 MB</div>
+        </div>
     </div>
 
     <div class="footer">
         Animelka Dev © 2026<br>
-        Все файлы проверены на наличие вирусов
+        Если ссылка не открывается, попробуйте VPN
     </div>
 
-    <script>
-        const CONFIG = {
-            user: 'animelka',
-            repo: 'TuskanchikClickerUpdates'
-        };
-
-        async function fetchApks() {
-            const listDiv = document.getElementById('list');
-            const status = document.getElementById('status');
-
-            try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/contents/`);
-                const files = await res.json();
-                
-                const apks = files.filter(f => f.name.toLowerCase().endsWith('.apk'));
-                status.style.display = 'none';
-
-                if (apks.length === 0) {
-                    listDiv.innerHTML = '<div style="text-align:center; color:#554a6d">Обновлений не найдено. Зайдите позже.</div>';
-                    return;
-                }
-
-                for (const file of apks) {
-                    // Получаем дату и размер
-                    const commitRes = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`);
-                    const commitData = await commitRes.json();
-                    
-                    const date = commitData[0] ? new Date(commitData[0].commit.committer.date).toLocaleDateString('ru-RU', {
-                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-                    }) : "Неизвестно";
-
-                    const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-
-                    const card = document.createElement('div');
-                    card.className = 'update-card';
-                    card.innerHTML = `
-                        <div class="card-top">
-                            <div class="apk-info">
-                                <span class="file-name">📦 ${file.name}</span>
-                                <span class="file-meta">Загружено: ${date} | Размер: ${sizeMb} MB</span>
-                            </div>
-                            <span class="badge">Актуально</span>
-                        </div>
-                        <a href="${file.download_url}" class="btn-install">Установить APK</a>
-                    `;
-                    listDiv.appendChild(card);
-                }
-            } catch (err) {
-                status.innerHTML = "ОШИБКА ПОДКЛЮЧЕНИЯ К СЕТИ";
-                status.style.color = "red";
-            }
-        }
-
-        fetchApks();
-    </script>
 </body>
 </html>
